@@ -1,0 +1,13 @@
+name: WordPredictor
+title: WordPredictor
+username:
+account: courtney-rowlands
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1411564
+bundleId: 2557620
+url: https://courtney-rowlands.shinyapps.io/WordPredictor/
+when: 1572632868.45157
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: plotData-1.png|plotData-2.png

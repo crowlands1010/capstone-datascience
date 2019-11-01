@@ -1,0 +1,127 @@
+---
+title: "Coursera Data Science Capstone Milestone Report"
+output:
+  html_document:
+    keep_md: yes
+date: "March 29, 2015"
+---
+```{r set-options, echo = F, cache = F}
+options(width=100)
+```
+## Executive summary
+The Coursera Data Science Specialization Capstone project from Johns Hopkins University (JHU) allows 
+students to create a usable public data product that can show their skills to potential 
+employers. Projects are drawn from real-world problems and are conducted with industry, government, 
+and academic partners. For this iteration of the class, JHU is partnering with SwiftKey 
+(http://swiftkey.com/en/) to apply data science in the area of **natural language processing**.
+
+The objective of this project is to build a working predictive text model. The data we will be 
+using is from a **corpus** called HC Corpora (www.corpora.heliohost.org). A corpus is body of text, 
+usually containing a large number of sentences. [1] The readme file at 
+http://www.corpora.heliohost.org/aboutcorpus.html contains the details on the available corpora.
+
+This milestone report explains our initial exploratory analysis and our goals for the eventual predictive 
+text application and algorithm. This document explains the major features of the data we have identified 
+and briefly summarizes our plans for creating the prediction algorithm and Shiny (http://shiny.rstudio.com/) application.
+
+[1] http://desilinguist.org/pdf/crossroads.pdf
+
+## Loading and cleaning the data
+In order to process the data in R (http://www.r-project.org/), we first needed to load the necessary 
+packages. Then we downloaded the source data from 
+http://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip. 
+For this project, we only used the English (United States) data even though other language files were 
+available, including German, Finnish, and Russian.
+
+The English data was derived from three Internet sources: blogs, twitters, and news files. We read in and 
+processed each file separately. To make the data more useful, we removed extraneous information including:
+
+- *Special characters*, 
+- *Capital letters*, 
+- *Hyphenatin in prefixes such as un- and in-*,
+- *Single quotes in contractions like don't*,
+- *All non-alphabetic characters except periods*,
+- *Periods other than at the end of sentences, and*
+- *Extraneous spaces*.
+
+To aid in subsequent analysis, we then split the lines into sentences.
+
+## Analyzing the data
+Once the data was loaded and cleaned for each of the blogs, twitter, and news files, we combined 
+everything into a single corpus and gathered the following basic statistics:
+```{r echo = F}
+summary_df <- readRDS("summary.rds")
+summary_df
+```
+As noted in the table above, there was an average of `r summary_df[1,6]`, `r summary_df[2,6]`, 
+and `r summary_df[3,6]` words per sentence in the blogs, twitter, and news files, respectively. 
+There also was an average of `r summary_df[1,7]`, `r summary_df[2,7]`, 
+and `r summary_df[3,7]` characters per word in the blogs, twitter, and news files, respectively.
+
+## Conducting an initial exploratory analysis
+In any analysis, it is important to first sample the data. A small randomly selected subset of the 
+data is often all that is needed to get an accurate representation. Accordingly, we conducted our initial 
+exploratory analysis on approximately 100K randomly selected sentences.
+
+The first step in analyzing the subsetted data was to remove any profanity. We used a publicly 
+available list of bad words from Google to accomplish this task. [2] After removing any profanity, the 
+next step was to **tokenize** the corpus. A token is a linguistic unit such as a word. Sentences are 
+an ordered sequence of tokens. Tokenization is the process of splitting a sentence into its tokens. [3] 
+Further analysis was then conducted on **n-grams** of word tokens. An n-gram is a contiguous sequence of 
+*n* items from a given sequence of text or speech. [4]
+```{r echo = F}
+freq_dt <- readRDS("freq_dt.rds")
+freq2_dt <- readRDS("freq2_dt.rds")
+freq3_dt <- readRDS("freq3_dt.rds")
+```
+For the initial exploratory analysis, we investigated the frequencies of unigrams (single words), 
+bigrams (two-word sequences), and trigrams (three-word sequences). 
+The figures below show the top twenty unigrams, bigrams, and trigrams in the sample corpus. 
+As can be seen in the figure, the most common unigram was "**`r freq_dt$word[1]`**". 
+The most common bigram was "**`r freq2_dt$phrase[1]`**" and the most common trigram was 
+"**`r freq3_dt$phrase[1]`**".
+```{r echo = F}
+plt1 <- readRDS("plt1.rds")
+plt1
+plt2 <- readRDS("plt2.rds")
+plt2
+plt3 <- readRDS("plt3.rds")
+plt3
+```
+
+[2] http://badwordslist.googlecode.com/files/badwords.txt 
+
+[3] http://desilinguist.org/pdf/crossroads.pdf
+
+[4] http://en.wikipedia.org/wiki/N-gram
+
+## Next steps
+Moving forward to the ultimate objective of creating a Shiny application that can predict the next word in a phrase, we have a number of tasks left to accomplish including:
+
+1. Assessing the efficacy of including contractions, correcting spelling, and using **POS tagging** in the model. 
+Part-of-speech (POS) tagging, or POST, is the process of marking up a word in a corpus into nouns, verbs, 
+adjectives, adverbs, etc., based on its definition and context. [5]
+2. Assessing the efficacy of removing **stopwords** from the corpus. Stopwords are extremely common words which would appear to be of little value in helping to accomplish the task, such as predicting the next word in 
+a phrase. [6]
+3. Assessing the efficacy of **stemming** words in the corpus. Stemming is the term used in 
+linguistic morphology and information retrieval to describe the process for reducing inflected or derived 
+words to their word stem, base, or root form. [7]
+4. Investigating the efficacy of using **Markov chains** in the model. 
+In general, a Markov chain is a weighted list of possibilities for moving from one state to the next. 
+For our context, Markov chains represent n-gram model probability tables which are used to predict the most 
+likely next word. [8]
+5. Building an n-gram algorithm based on the above analysis for predicting the 
+next word from the previous one, two, or three words, even if a particular word or phrase has not been 
+previously observed. 
+6. Creating a Shiny application that accepts an n-gram and predicts the next word.
+
+The major challenge we expect to face in creating our final product is how to best balance the size and 
+run time of the model in order to provide a reasonable experience to the user.
+
+[5] http://en.wikipedia.org/wiki/Part-of-speech_tagging
+
+[6] http://nlp.stanford.edu/IR-book/html/htmledition/dropping-common-terms-stop-words-1.html
+
+[7] http://en.wikipedia.org/wiki/Stemming
+
+[8] http://www.decontextualize.com/teaching/dwwp/topics-n-grams-and-markov-chains/
